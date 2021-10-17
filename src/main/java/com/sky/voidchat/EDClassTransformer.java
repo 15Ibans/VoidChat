@@ -1,22 +1,13 @@
 package com.sky.voidchat;
 
-import java.util.Iterator;
-import java.util.Map;
-
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
-
 import jdk.internal.org.objectweb.asm.ClassReader;
 import jdk.internal.org.objectweb.asm.ClassWriter;
-import jdk.internal.org.objectweb.asm.MethodVisitor;
-import jdk.internal.org.objectweb.asm.tree.AbstractInsnNode;
-import jdk.internal.org.objectweb.asm.tree.ClassNode;
-import jdk.internal.org.objectweb.asm.tree.InsnList;
-import jdk.internal.org.objectweb.asm.tree.IntInsnNode;
-import jdk.internal.org.objectweb.asm.tree.LabelNode;
-import jdk.internal.org.objectweb.asm.tree.MethodNode;
-import jdk.internal.org.objectweb.asm.tree.VarInsnNode;
+import jdk.internal.org.objectweb.asm.tree.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.launchwrapper.IClassTransformer;
+
+import java.util.Iterator;
 
 public class EDClassTransformer implements IClassTransformer{
 
@@ -45,7 +36,7 @@ public class EDClassTransformer implements IClassTransformer{
 			MethodNode m = methods.next();
 			int bipush_index = -1;
 			int bipush_index2 = -1;
-	
+
 			//Check if this is doExplosionB and it's method signature is (Z)V which means that it accepts a boolean (Z) and returns a void (V)
 			int i = checkFunction(m);
 			if (i == 1)
@@ -59,9 +50,9 @@ public class EDClassTransformer implements IClassTransformer{
 				    BIPUSH 100 <<<<<< we want to change this value to 10.000
 				    IF_ICMPLE L13
 				 */
-				
+
 				AbstractInsnNode currentNode = null;
-				
+
 				Iterator<AbstractInsnNode> iter = m.instructions.iterator();
 				int index = -1;
 
@@ -71,20 +62,20 @@ public class EDClassTransformer implements IClassTransformer{
 				{
 					index++;
 					currentNode = iter.next();
-	
+
 					//Found it! save the index location of instruction FDIV and the node for this instruction
 					if (currentNode.getOpcode() == Opcodes.BIPUSH)
 					{
 						final int new_value = 30000;
-						toInject.add(new IntInsnNode(Opcodes.SIPUSH, new_value));	
+						toInject.add(new IntInsnNode(Opcodes.SIPUSH, new_value));
 						continue;
 					}
 					toInject.add(currentNode);
 				}
 				m.instructions.clear();
 				m.instructions.add(toInject);
-				
-				
+
+
 			}
 			else if(i==-1)
 			{
@@ -121,7 +112,7 @@ public class EDClassTransformer implements IClassTransformer{
 				return 1;
 			}
 		}
-		else if(mcVersion.startsWith("1.9") || mcVersion.startsWith("1.8.8") || mcVersion.startsWith("1.8.9"))
+		else if(mcVersion.startsWith("1.9") || mcVersion.startsWith("1.8.8") || mcVersion.startsWith("1.8.9") || mcVersion.startsWith("MultiMC5"))
 		{
 			if(m.desc.equals("(Leu;IIZ)V"))
 			{
